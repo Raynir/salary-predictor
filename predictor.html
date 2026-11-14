@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Company Rate Predictor</title>
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" aria-label="Sections">
+    <div class="brand">
+      <div class="brand-title" data-t="title"></div>
+      <p class="sub" data-t="subtitle"></p>
+    </div>
+    <div class="nav-items">
+      <button type="button" class="nav-item" data-nav="forecast" data-t="navForecast"></button>
+      <button type="button" class="nav-item" data-nav="salary" data-t="navSalary"></button>
+      <button type="button" class="nav-item" data-nav="salary-history" data-t="navSalHistory"></button>
+      <button type="button" class="nav-item" data-nav="earnings" data-t="navEarnings"></button>
+      <button type="button" class="nav-item" data-nav="settings" data-t="navSettings"></button>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="ru">RU</button>
+    </div>
+  </nav>
+
+  <main>
+    <header>
+      <h1 id="sectionTitle"></h1>
+      <p class="status" id="status" aria-live="polite"></p>
+    </header>
+
+    <section data-section="forecast">
+      <div class="card grid2">
+        <div>
+          <div class="field">
+            <label for="month" data-t="month"></label>
+            <select id="month"></select>
+          </div>
+          <div class="field">
+            <label for="expected" data-t="expected"></label>
+            <input id="expected" type="text" inputmode="decimal" autocomplete="off">
+            <button type="button" class="linkbtn" id="useLatest"></button>
+          </div>
+        </div>
+        <div>
+          <div class="hero-label" data-t="predicted"></div>
+          <div class="hero" id="pred">–</div>
+          <div class="range" id="range"></div>
+          <div class="actual" id="actual"></div>
+          <ul class="facts" id="facts"></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-t="history"></h2>
+        <div class="legend">
+          <span style="--c: var(--s1)" data-t="lgCbr"></span>
+          <span style="--c: var(--s2)" data-t="lgCompany"></span>
+          <span style="--c: var(--s3)" data-t="lgModel"></span>
+        </div>
+        <div class="chart" id="chart"><svg id="svg" role="img"></svg><div class="tip" id="tip"></div></div>
+        <p class="note" id="mae"></p>
+        <div class="tablewrap"><table id="table"></table></div>
+        <h2 class="spaced" data-t="crTitle"></h2>
+        <div class="row addrate">
+          <div class="field"><label for="crMonth" data-t="crMonth"></label><select id="crMonth"></select></div>
+          <div class="field"><label for="crRate" data-t="crRate"></label><input id="crRate" type="text" inputmode="decimal" autocomplete="off" placeholder="82.15"></div>
+        </div>
+        <div class="row">
+          <button type="button" class="btn" id="crSave" data-t="crSave"></button>
+          <button type="button" class="btn" id="crExport" data-t="crExport"></button>
+        </div>
+        <p class="note" data-t="crNote"></p>
+      </div>
+    </section>
+
+    <section data-section="salary" hidden>
+      <div class="card grid2">
+        <div>
+          <h2 data-t="salTitle"></h2>
+          <div class="field">
+            <label for="salary" data-t="salary"></label>
+            <input id="salary" type="text" inputmode="decimal" autocomplete="off" placeholder="100000">
+          </div>
+          <div class="field">
+            <label for="salRaise" data-t="salRaise"></label>
+            <input id="salRaise" type="text" inputmode="decimal" autocomplete="off" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="salRate" data-t="salRate"></label>
+            <input id="salRate" type="text" inputmode="decimal" autocomplete="off">
+            <button type="button" class="linkbtn" id="useSalPred"></button>
+          </div>
+          <div class="field">
+            <label data-t="salMode"></label>
+            <div class="seg" role="group">
+              <button type="button" data-mode="piecewise" data-t="modePiece"></button>
+              <button type="button" data-mode="line" data-t="modeLine"></button>
+            </div>
+          </div>
+          <div class="pgrid">
+            <div class="field"><label for="salFixed" data-t="salFixed"></label><input id="salFixed" type="text" inputmode="decimal" autocomplete="off"></div>
+            <div class="field"><label for="salBase" data-t="salBase"></label><input id="salBase" type="text" inputmode="decimal" autocomplete="off"></div>
+            <div class="field"><label for="salLower" data-t="salLower"></label><input id="salLower" type="text" inputmode="decimal" autocomplete="off"></div>
+            <div class="field" id="salUpperField"><label for="salUpper" data-t="salUpper"></label><input id="salUpper" type="text" inputmode="decimal" autocomplete="off"></div>
+            <div class="field"><label for="salYMin" data-t="salYMin"></label><input id="salYMin" type="text" inputmode="decimal" autocomplete="off"></div>
+            <div class="field"><label for="salYMax" data-t="salYMax"></label><input id="salYMax" type="text" inputmode="decimal" autocomplete="off"></div>
+          </div>
+          <button type="button" class="btn" id="salReset" data-t="salReset"></button>
+        </div>
+        <div>
+          <div class="seg taxview" role="group">
+            <button type="button" data-taxview="gross" data-t="viewGross"></button>
+            <button type="button" data-taxview="net" data-t="viewNet"></button>
+          </div>
+          <div class="hero-label" id="salExpected"></div>
+          <div class="hero" id="salOut">–</div>
+          <div class="range" id="salRange"></div>
+          <ul class="facts" id="salFacts"></ul>
+        </div>
+        <details class="wide">
+          <summary data-t="salHowTitle"></summary>
+          <div id="salHow"></div>
+        </details>
+      </div>
+    </section>
+
+    <section data-section="salary-history" hidden>
+      <div class="card">
+        <div class="cardhead">
+          <h2 data-t="shTitle"></h2>
+          <div class="seg taxview" role="group">
+            <button type="button" data-taxview="gross" data-t="viewGross"></button>
+            <button type="button" data-taxview="net" data-t="viewNet"></button>
+          </div>
+        </div>
+        <div class="legend sq" id="shLegend">
+          <span style="--c: var(--good)" data-t="shAbove"></span>
+          <span style="--c: var(--bad)" data-t="shBelow"></span>
+          <span class="dash" style="--c: var(--ink-2)" id="shBaseLg"></span>
+        </div>
+        <div class="chart"><svg id="shSvg" class="short" role="img"></svg><div class="tip" id="shTip"></div></div>
+        <p class="note" id="shNote"></p>
+        <div class="tablewrap"><table id="shTable"></table></div>
+      </div>
+    </section>
+
+    <section data-section="earnings" hidden>
+      <div class="card grid2">
+        <div>
+          <div class="field">
+            <label for="erYear" data-t="erYear"></label>
+            <select id="erYear"></select>
+          </div>
+          <div class="seg taxview" role="group">
+            <button type="button" data-taxview="gross" data-t="viewGross"></button>
+            <button type="button" data-taxview="net" data-t="viewNet"></button>
+          </div>
+          <div id="erWarn"></div>
+        </div>
+        <div>
+          <div class="hero-label" id="erTotalLabel"></div>
+          <div class="hero" id="erTotal">–</div>
+          <ul class="facts" id="erFacts"></ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-t="erPayments"></h2>
+        <div class="tablewrap"><table id="erTable"></table></div>
+      </div>
+
+      <div class="card">
+        <h2 data-t="erCalTitle"></h2>
+        <div class="legend sq cal-legend">
+          <span class="lg-work" data-t="lgWork"></span>
+          <span class="lg-off" data-t="lgOff"></span>
+          <span class="lg-hol" data-t="lgHol"></span>
+          <span class="lg-vac" data-t="lgVac"></span>
+          <span class="lg-comp" data-t="lgComp"></span>
+          <span class="lg-xw" data-t="lgXwork"></span>
+          <span class="lg-pay" data-t="lgPay"></span>
+        </div>
+        <p class="note" id="erStats"></p>
+        <p class="note" data-t="calHint"></p>
+        <div class="cal" id="erCal"></div>
+      </div>
+
+      <div class="card stack">
+        <div>
+          <h2 data-t="erPeriodsTitle"></h2>
+          <p class="note" data-t="erPeriodsNote"></p>
+          <div id="erPeriods"></div>
+          <div class="row"><button type="button" class="btn" id="erAddPeriod" data-t="erAddPeriod"></button></div>
+        </div>
+        <div>
+          <h2 data-t="erVacTitle"></h2>
+          <p class="note" data-t="erVacNote"></p>
+          <div id="erVacs"></div>
+          <div class="row"><button type="button" class="btn" id="erAddVac" data-t="erAddVac"></button></div>
+          <div class="files spaced">
+            <div><label for="fileVac" data-t="loadVac"></label><input id="fileVac" type="file" accept=".csv,.txt"></div>
+          </div>
+          <p class="note" data-t="vacFileNote"></p>
+          <div class="row"><button type="button" class="btn" id="vacTemplate" data-t="vacTemplate"></button></div>
+        </div>
+        <div>
+          <h2 data-t="erExtraTitle"></h2>
+          <p class="note" data-t="erExtraNote"></p>
+          <div id="erExtra"></div>
+          <div class="row"><button type="button" class="btn" id="erAddExtra" data-t="erAddExtra"></button></div>
+        </div>
+        <div class="wide">
+          <h2 data-t="erHolTitle"></h2>
+          <p class="note" id="erHolNote"></p>
+          <div class="files spaced">
+            <div><label for="fileHol" data-t="loadHol"></label><input id="fileHol" type="file" accept=".csv,.txt,.xml"></div>
+          </div>
+          <p class="note" data-t="holFileNote"></p>
+          <div class="row">
+            <button type="button" class="btn" id="holFetch" data-t="holFetch"></button>
+            <button type="button" class="btn" id="holTemplate"></button>
+            <button type="button" class="btn" id="holReset" data-t="holReset"></button>
+          </div>
+        </div>
+        <details class="wide">
+          <summary data-t="erHowTitle"></summary>
+          <div id="erHow"></div>
+        </details>
+      </div>
+    </section>
+
+    <section data-section="settings" hidden>
+      <div class="card grid2">
+        <div>
+          <h2 data-t="settings"></h2>
+          <div class="field">
+            <label for="nMonths" data-t="nMonths"></label>
+            <select id="nMonths">
+              <option value="6">6</option>
+              <option value="12" selected>12</option>
+              <option value="24">24</option>
+              <option value="0" data-t="all"></option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="kOverride" data-t="kOverride"></label>
+            <input id="kOverride" type="text" inputmode="decimal" autocomplete="off" placeholder="1.000">
+          </div>
+        </div>
+        <div>
+          <h2 data-t="data"></h2>
+          <div class="files">
+            <div><label for="fileCbr" data-t="loadCbr"></label><input id="fileCbr" type="file" accept=".csv,.txt"></div>
+            <div><label for="fileCompany" data-t="loadCompany"></label><input id="fileCompany" type="file" accept=".csv,.txt"></div>
+          </div>
+          <div class="row">
+            <button type="button" class="btn" id="refresh" data-t="refresh"></button>
+            <button type="button" class="btn" id="reset" data-t="reset"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-t="taxTitle"></h2>
+        <label class="check"><input type="checkbox" id="taxOn"> <span data-t="taxOn"></span></label>
+        <div id="taxBody">
+          <p class="note" data-t="taxNote"></p>
+          <div id="taxRows"></div>
+          <p class="note bad" id="taxBad" aria-live="polite"></p>
+          <div class="row">
+            <button type="button" class="btn" id="taxAdd" data-t="taxAdd"></button>
+            <button type="button" class="btn" id="taxReset" data-t="taxReset"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="statsCard" hidden>
+        <h2 data-t="statsTitle"></h2>
+        <p class="note" data-t="statsNote"></p>
+        <p class="note" data-t="statsTrust"></p>
+        <label class="check"><input type="checkbox" id="statsOn"> <span data-t="statsOnLabel"></span></label>
+        <p class="note" id="statsState" aria-live="polite"></p>
+        <details>
+          <summary data-t="statsWhat"></summary>
+          <pre class="payload" id="statsPreview"></pre>
+        </details>
+      </div>
+
+      <div class="card">
+        <details>
+          <summary data-t="howTitle"></summary>
+          <div id="how"></div>
+        </details>
+      </div>
+    </section>
+  </main>
+</div>
+
+<dialog id="statsAsk" aria-labelledby="statsAskTitle" tabindex="-1">
+  <h2 id="statsAskTitle" data-t="statsAskTitle"></h2>
+  <p data-t="statsAskText"></p>
+  <p class="note" data-t="statsAskWho"></p>
+  <p class="note" data-t="statsTrust"></p>
+  <details>
+    <summary data-t="statsWhat"></summary>
+    <pre class="payload" id="statsAskPreview"></pre>
+  </details>
+  <div class="row">
+    <button type="button" class="btn" id="statsYes" data-t="statsYes"></button>
+    <button type="button" class="btn" id="statsNo" data-t="statsNo"></button>
+  </div>
+</dialog>
+
+<!-- Classic scripts share one global scope, so order matters: each file only uses what loads before it
+     (or calls it later, from a function body). ES modules would break when opened from file://. -->
+<script src="src/data.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/util.js"></script>
+<script src="src/js/tax.js"></script>
+<script src="src/js/model.js"></script>
+<script src="src/js/forecast.js"></script>
+<script src="src/js/rate-chart.js"></script>
+<script src="src/js/salary.js"></script>
+<script src="src/js/salary-history.js"></script>
+<script src="src/js/calendar.js"></script>
+<script src="src/js/earnings.js"></script>
+<script src="src/js/stats.js"></script>
+<script src="src/js/data-sync.js"></script>
+<script src="src/js/nav.js"></script>
+<script src="src/js/main.js"></script>
+</body>
+</html>
