@@ -32,15 +32,15 @@ async function refreshOnline() {
     takeUsd(latestJson, added);
     // Fetch every missing day after the built-in data, at most ~4 months back. Rates saved on earlier
     // visits leave holes between them, so look for missing days rather than starting after the last one.
-    // Only Tuesday to Saturday have CBR rates; other days return 404.
+    // CBR sets a rate for day d only on a working day d-1 (per the production calendar). Other days return
+    // 404 without CORS headers, which the browser reports as a CORS error, so don't request them.
     const builtIn = parseRates(EMBEDDED.cbr).map((r) => r[0]).sort().pop();
     let from = addDays(builtIn || todayIso(), 1);
     const floor = addDays(todayIso(), -120);
     if (from < floor) from = floor;
     const days = [];
     for (let d = from; d <= todayIso(); d = addDays(d, 1)) {
-      const wd = toUTC(d).getUTCDay();
-      if (wd >= 2 && wd <= 6 && !S.cbr.has(d)) days.push(d);
+      if (isWorkday(addDays(d, -1)) && !S.cbr.has(d)) days.push(d);
     }
     for (let i = 0; i < days.length; i += 6) {
       const batch = days.slice(i, i + 6).map((d) =>
