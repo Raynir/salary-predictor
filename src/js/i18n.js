@@ -464,7 +464,7 @@ const store = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 
-let lang = store.get("sp.lang") || ((navigator.language || "").toLowerCase().startsWith("ru") ? "ru" : "en");
+let lang = store.get("sp.lang") || "ru";
 const tr = (key, vars = {}) => (T[lang][key] || key).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? "");
 const locale = () => (lang === "ru" ? "ru-RU" : "en-US");
 const fmt = (v, d = 2) => v.toLocaleString(locale(), { minimumFractionDigits: d, maximumFractionDigits: d });

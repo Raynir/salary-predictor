@@ -1,7 +1,7 @@
 // ---------- income tax ----------
 /** Yearly brackets, Russian NDFL 2025. Each rate applies to the part of yearly income from its `from` up to the next `from`. */
 const TAX_DEFAULTS = {
-  on: false,
+  on: true,
   view: "gross",
   brackets: [["0", "13"], ["2400000", "15"], ["5000000", "18"], ["20000000", "20"], ["50000000", "22"]].map(([from, rate]) => ({ from, rate })),
 };
@@ -10,7 +10,7 @@ function loadTax() {
   const saved = store.get("sp.tax") || {};
   const br = Array.isArray(saved.brackets) && saved.brackets.length ? saved.brackets : TAX_DEFAULTS.brackets;
   ui.tax = {
-    on: saved.on === true,
+    on: typeof saved.on === "boolean" ? saved.on : TAX_DEFAULTS.on,
     view: saved.view === "net" ? "net" : "gross",
     brackets: br.map((b) => ({ from: String(b.from ?? ""), rate: String(b.rate ?? "") })),
   };

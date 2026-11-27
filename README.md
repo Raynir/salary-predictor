@@ -63,7 +63,7 @@ Salary periods, vacations, worked days off and loaded or downloaded calendars ar
 
 ## Income tax
 
-Tax is off by default. Turn it on with "Account for income tax" in Settings & data. X is always entered before tax. The Salary, Salary history and Earnings sections then get a "Before tax / After tax" toggle. All these toggles share one setting.
+Tax is on by default. Turn it off with "Account for income tax" in Settings & data. X is always entered before tax. With tax on, the Salary, Salary history and Earnings sections get a "Before tax / After tax" toggle. All these toggles share one setting.
 
 Tax rates are set as yearly ranges. Each rate applies only to the part of the year's income inside its range. The defaults are Russian NDFL 2025: 13% up to 2.4 million ₽, 15% to 5 million, 18% to 20 million, 20% to 50 million, 22% above. You can edit, add or remove ranges, or reset them.
 
@@ -194,7 +194,7 @@ Y между границами считается одним из двух сп
 
 ## Налог на доходы
 
-По умолчанию налог не учитывается. Включите «Учитывать налог на доходы» в разделе «Настройки и данные». X всегда вводится до вычета налога. В разделах «Зарплата», «История зарплаты» и «Выплаты» появляется переключатель «До налога / После налога». Все эти переключатели управляют одной настройкой.
+По умолчанию налог учитывается. Отключить его можно флажком «Учитывать налог на доходы» в разделе «Настройки и данные». X всегда вводится до вычета налога. Когда налог учитывается, в разделах «Зарплата», «История зарплаты» и «Выплаты» есть переключатель «До налога / После налога». Все эти переключатели управляют одной настройкой.
 
 Ставки задаются диапазонами годового дохода. Каждая ставка действует только на часть дохода за год внутри своего диапазона. По умолчанию это НДФЛ 2025: 13% до 2,4 млн ₽, 15% до 5 млн, 18% до 20 млн, 20% до 50 млн, 22% свыше. Диапазоны можно менять, добавлять, удалять или вернуть к исходным.
 
