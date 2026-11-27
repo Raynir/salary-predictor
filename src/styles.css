@@ -193,6 +193,8 @@ h2.spaced { margin-top: 24px; }
 .cal-d.pay { box-shadow: inset 0 0 0 2px var(--accent); }
 .cal-d.today { text-decoration: underline; font-weight: 700; }
 .cal-foot { color: var(--muted); font-size: 12px; margin-top: 4px; }
+.cal-earned { color: var(--ink); font-size: 12px; font-weight: 600; margin-top: 2px; cursor: help; }
+.cal-earned .muted { font-weight: 400; }
 .cal-legend span::before { width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; }
 .cal-legend .lg-work::before { background: var(--surface); box-shadow: inset 0 0 0 1px var(--axis); }
 .cal-legend .lg-off::before { background: var(--offday); }

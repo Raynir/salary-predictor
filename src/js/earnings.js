@@ -302,6 +302,7 @@ function renderEarnings() {
     left.length ? tr("erLeft", { v: money(sum(left)), n: left.length }) : "",
     next ? tr("erNext", { d: showDate(next.date), k: payLabel(next), v: money(amt(next)) }) : "",
     cur.isNew && cur.rate ? tr("erRateNow", { m: showMonth(nowYm), r: fmt(cur.rate), src: tr(cur.forecast ? "shForecast" : "erActual"), y: fmt(cur.y, 3) }) : "",
+    earnedFact(sch, year, net),
     extraFact(sch, year),
     ui.tax.on && br && rows.length ? tr("erTax", { v: money(rows.reduce((t, x) => t + x.tax, 0)) }) : "",
     !rows.length ? tr("erNoPayments", { y: year }) : "",
@@ -319,6 +320,49 @@ function renderEarnings() {
   $("#erTable").innerHTML = rows.length ? `<thead><tr>${head}</tr></thead><tbody>${body}</tbody>` : "";
   renderCalendars(year, sch);
   updateExtraInfo(sch);
+}
+
+/**
+ * What was earned for each month, whenever it was paid: the month's salary (advance + rest, worked days off included)
+ * and the vacation or compensation pay for its days, each paid day getting the payment's daily share. After tax
+ * each part takes its own payment's net, so the months add up to the payments.
+ * Returns Map<ym, {salary, vac, comp, total, forecast}>. Payments must already have .net when `net` is set.
+ */
+function earnedByMonth(sch, net) {
+  const out = new Map();
+  const at = (ym) => {
+    if (!out.has(ym)) out.set(ym, { salary: 0, vac: 0, comp: 0, total: 0, forecast: false });
+    return out.get(ym);
+  };
+  for (const x of sch.payments) {
+    const v = net ? x.net : x.gross;
+    if (x.kind === "adv" || x.kind === "final") {
+      const e = at(x.ym);
+      e.salary += v; e.total += v;
+      // The advance row has its rate fields cleared; the month itself knows whether its rate is a forecast
+      e.forecast = e.forecast || sch.month(x.ym).forecast;
+      continue;
+    }
+    if (!x.paid) continue;
+    const perDay = v / x.paid;
+    for (let d = x.from; d <= x.to; d = addDays(d, 1)) {
+      if (isPublicHoliday(d)) continue;
+      const e = at(d.slice(0, 7));
+      e[x.kind] += perDay; e.total += perDay;
+      e.forecast = e.forecast || x.forecast;
+    }
+  }
+  return out;
+}
+
+/** Earned for work in the year: the sum of its twelve months. */
+function earnedFact(sch, year, net) {
+  let v = 0, fc = false, any = false;
+  for (const [ym, e] of earnedByMonth(sch, net)) {
+    if (+ym.slice(0, 4) !== year) continue;
+    v += e.total; fc = fc || e.forecast; any = true;
+  }
+  return any ? tr("erEarnedFact", { y: year, v: money(v) }) + (fc ? ` <span class="muted">(${tr("shForecast")})</span>` : "") : "";
 }
 
 /** Days off worked in the year and what they add before tax, by the month they were worked. */
@@ -371,6 +415,7 @@ function renderCalendars(year, sch) {
   const wd = [...Array(7)].map((_, i) => toUTC(iso(2024, 1, 1 + i)).toLocaleDateString(locale(), { timeZone: "UTC", weekday: "short" }));
   const st = { cal: 0, work: 0, off: 0, hol: 0, vac: 0, vacPaid: 0, worked: 0, xw: 0, comp: 0, compPaid: 0 };
   const xw = new Set(earnExtra().list);
+  const earned = sch ? earnedByMonth(sch, !!net) : new Map();
   let html = "";
   for (let m = 1; m <= 12; m++) {
     const ym = `${year}-${pad(m)}`;
@@ -399,8 +444,16 @@ function renderCalendars(year, sch) {
       cells += `<div class="${cls}"${pick ? ` data-date="${d}" role="button" tabindex="0"` : ""} title="${tip.join("\n")}">${+d.slice(8)}</div>`;
     }
     const foot = tr("erMonthFoot", { w: mWork }) + (mVac ? tr("erMonthVac", { v: mVac }) : "") + (mComp ? tr("erMonthComp", { v: mComp }) : "");
+    const e = earned.get(ym);
+    let earnLine = "";
+    if (e && e.total >= 0.5) {
+      const parts = [["erEarnSal", e.salary], ["erEarnVac", e.vac], ["erEarnComp", e.comp]]
+        .filter(([, v]) => v >= 0.5).map(([k, v]) => tr(k, { v: money(v) }));
+      const fc = e.forecast ? ` <span class="muted">(${tr("shForecast")})</span>` : "";
+      earnLine = `<div class="cal-earned" title="${parts.join("\n")}">${tr("erMonthEarned", { v: money(e.total) })}${fc}</div>`;
+    }
     html += `<div class="cal-month"><div class="cal-title">${toUTC(ym + "-01").toLocaleDateString(locale(), { timeZone: "UTC", month: "long" })}</div>` +
-      `<div class="cal-grid">${cells}</div><div class="cal-foot">${foot}</div></div>`;
+      `<div class="cal-grid">${cells}</div><div class="cal-foot">${foot}</div>${earnLine}</div>`;
   }
   $("#erCal").innerHTML = html;
   $("#erStats").innerHTML = tr("erStats", { y: year, ...st }) + (st.comp ? tr("erStatsComp", { n: st.comp, p: st.compPaid }) : "") +
