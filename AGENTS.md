@@ -1,6 +1,6 @@
 # Company USD rate predictor
 
-A static web page that predicts the company's monthly USD→RUB rate from the Central Bank (CBR) daily rates and estimates a salary under a rate-linked multiplier scheme. UI in English and Russian. People get it as an archive with `predictor.html` and `src/`, and open the HTML file by double-click (file://). No server.
+A static web page that predicts the company's monthly USD→RUB rate from the Central Bank (CBR) daily rates and estimates a salary under a rate-linked multiplier scheme. UI in English and Russian. People get it as an archive with `predictor.html` and `src/` and open the HTML file by double-click (file://), or use the GitHub Pages copy that `.github/workflows/pages.yml` deploys from each published release. No server; everything must keep working on file://.
 
 ## Layout
 
@@ -24,6 +24,7 @@ src/js/nav.js         sidebar section switching (URL hash + sp.section)
 src/js/main.js        event wiring and startup
 data/*.csv            source data: CBR daily rates, company monthly rates (header only in the repo), production calendar (holidays.csv)
 private/              gitignored: real company_rates.csv and scheme.json (pay-scheme defaults), used by make_zip.py
+.github/workflows/pages.yml  on a published release: rebuild src/data.js at the tag, check nothing private is in it, deploy predictor.html (+ index.html copy) and src/ to GitHub Pages
 tools/stats-apps-script.gs  Google Apps Script backend for the statistics (pasted into the sheet, not loaded)
 update_data.py        fetches new CBR rates, writes src/data.js, prints a prediction
 make_zip.py           builds dist/*.zip to hand out, filling STATS_URL from stats_url.txt, company rates and SAL_DEFAULTS from private/ (all gitignored); --with-sources adds data/, update_data.py, README

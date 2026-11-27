@@ -1,0 +1,55 @@
+# Publishes the app to GitHub Pages from a release tag, so only released code goes live.
+# Repository settings → Pages → Source must be "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to (re)deploy, e.g. v1.2.0"
+        required: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+
+      # Refresh the embedded CBR rates. If cbr.ru is unreachable the script keeps the committed data;
+      # the page also refreshes rates online in the browser.
+      - name: Rebuild src/data.js
+        run: python3 update_data.py
+
+      - name: Check that nothing private is published
+        run: |
+          grep -q '^const STATS_URL = "";' src/js/stats.js || { echo "STATS_URL must be empty"; exit 1; }
+          [ "$(grep -c . data/company_rates.csv)" -le 1 ] || { echo "data/company_rates.csv must hold only its header"; exit 1; }
+
+      - name: Assemble the site
+        run: |
+          mkdir _site
+          cp -r predictor.html src _site/
+          cp predictor.html _site/index.html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
