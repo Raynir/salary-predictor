@@ -93,10 +93,11 @@ async function readTextFile(input, apply) {
   }
 }
 
-/** Hand the user a text file. A UTF-8 BOM lets Excel open Russian text correctly. Works from file:// too. */
-function downloadText(name, text) {
+/** Hand the user a text file. For CSV a UTF-8 BOM lets Excel open Russian text correctly. Works from file:// too. */
+function downloadText(name, text, type = "text/csv") {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob(["\uFEFF" + text], { type: "text/csv;charset=utf-8" }));
+  const bom = type === "text/csv" ? "\uFEFF" : "";
+  a.href = URL.createObjectURL(new Blob([bom + text], { type: type + ";charset=utf-8" }));
   a.download = name;
   document.body.append(a);
   a.click();

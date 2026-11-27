@@ -20,6 +20,7 @@ src/js/calendar.js    production calendar: holiday file parsing, working days, p
 src/js/earnings.js    earnings section: salary periods, vacations, pay schedule, year calendar
 src/js/stats.js      opt-in salary statistics: first-launch dialog, settings card, POST to Apps Script
 src/js/data-sync.js   status line, online refresh from cbr-xml-daily.ru, CSV file loading
+src/js/backup.js      export/import of all sp.* data as JSON, first-visit import dialog (then askStats)
 src/js/nav.js         sidebar section switching (URL hash + sp.section)
 src/js/main.js        event wiring and startup
 data/*.csv            source data: CBR daily rates, company monthly rates (header only in the repo), production calendar (holidays.csv)
@@ -38,7 +39,7 @@ make_zip.py           builds dist/*.zip to hand out, filling STATS_URL from stat
 - Every UI string goes in both `T.en` and `T.ru` in `i18n.js`. Static text uses `data-t="key"`; `applyLang()` fills it.
 - The prediction model exists twice: `src/js/model.js` and `update_data.py`. Change both together and keep their output equal.
 - Colors only through the CSS tokens in `styles.css`. Check light and dark themes.
-- localStorage keys use the `sp.` prefix and go through `store`.
+- localStorage keys use the `sp.` prefix and go through `store`. Export/import (`backup.js`) carries every `sp.*` key; add keys that belong to one copy only (like `sp.section`) to `BACKUP_SKIP`.
 - Charts read `svg.clientWidth`, which is 0 inside a hidden section. `showSection()` redraws them; any new chart needs the same.
 - `STATS_URL` in `src/js/stats.js` stays `""` in the repo; `make_zip.py` fills it in the archive only. Never commit the real URL.
 - The repo is public. Real company rates and pay-scheme numbers stay in `private/`: `data/company_rates.csv` keeps only its header, `src/data.js` is always built without company rates, and `SAL_DEFAULTS` in `salary.js` holds example values.

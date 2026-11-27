@@ -147,6 +147,14 @@ document.querySelectorAll("[data-nav]").forEach((b) => b.addEventListener("click
 $("#statsOn").addEventListener("change", (e) => setStatsChoice(e.target.checked));
 $("#statsYes").addEventListener("click", () => { setStatsChoice(true); $("#statsAsk").close(); });
 $("#statsNo").addEventListener("click", () => { setStatsChoice(false); $("#statsAsk").close(); });
+$("#exportData").addEventListener("click", exportData);
+$("#importData").addEventListener("click", () => $("#fileImport").click());
+$("#fileImport").addEventListener("change", (e) => {
+  if ($("#welcome").open) $("#welcome").close();
+  readTextFile(e.target, importData);
+});
+$("#welcomeImport").addEventListener("click", () => $("#fileImport").click());
+$("#welcomeSkip").addEventListener("click", () => $("#welcome").close());
 window.addEventListener("hashchange", () => showSection(location.hash.slice(1)));
 let resizeTimer;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { drawChart(); drawSalaryChart(); }, 100); });
@@ -160,4 +168,4 @@ applyLang();
 showSection(initialSection());
 refreshOnline();
 syncStats();
-askStats();
+askWelcome();

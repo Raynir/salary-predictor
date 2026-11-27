@@ -265,6 +265,16 @@
       </div>
 
       <div class="card">
+        <h2 data-t="backupTitle"></h2>
+        <p class="note" data-t="backupNote"></p>
+        <div class="row">
+          <button type="button" class="btn" id="exportData" data-t="exportData"></button>
+          <button type="button" class="btn" id="importData" data-t="importData"></button>
+          <input id="fileImport" type="file" accept=".json,application/json" hidden>
+        </div>
+      </div>
+
+      <div class="card">
         <h2 data-t="taxTitle"></h2>
         <label class="check"><input type="checkbox" id="taxOn"> <span data-t="taxOn"></span></label>
         <div id="taxBody">
@@ -300,6 +310,16 @@
   </main>
 </div>
 
+<dialog id="welcome" aria-labelledby="welcomeTitle" tabindex="-1">
+  <h2 id="welcomeTitle" data-t="welcomeTitle"></h2>
+  <p data-t="welcomeText"></p>
+  <p class="note" data-t="welcomeLater"></p>
+  <div class="row">
+    <button type="button" class="btn" id="welcomeImport" data-t="welcomeImport"></button>
+    <button type="button" class="btn" id="welcomeSkip" data-t="welcomeSkip"></button>
+  </div>
+</dialog>
+
 <dialog id="statsAsk" aria-labelledby="statsAskTitle" tabindex="-1">
   <h2 id="statsAskTitle" data-t="statsAskTitle"></h2>
   <p data-t="statsAskText"></p>
@@ -330,6 +350,7 @@
 <script src="src/js/earnings.js"></script>
 <script src="src/js/stats.js"></script>
 <script src="src/js/data-sync.js"></script>
+<script src="src/js/backup.js"></script>
 <script src="src/js/nav.js"></script>
 <script src="src/js/main.js"></script>
 </body>
