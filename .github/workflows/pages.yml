@@ -36,16 +36,19 @@ jobs:
       - name: Rebuild src/data.js
         run: python3 update_data.py
 
-      - name: Check that nothing private is published
-        run: |
-          grep -q '^const STATS_URL = "";' src/js/stats.js || { echo "STATS_URL must be empty"; exit 1; }
-          [ "$(grep -c . data/company_rates.csv)" -le 1 ] || { echo "data/company_rates.csv must hold only its header"; exit 1; }
-
+      # Pay-scheme defaults stay out of git. The SCHEME_JSON secret holds private/scheme.json, e.g.
+      # {"fixed": "0.75", "base": "76", ...}; without it the site keeps the example values in salary.js.
       - name: Assemble the site
+        env:
+          SCHEME_JSON: ${{ secrets.SCHEME_JSON }}
         run: |
-          mkdir _site
-          cp -r predictor.html src _site/
-          cp predictor.html _site/index.html
+          if [ -n "$SCHEME_JSON" ]; then mkdir -p private && printf '%s' "$SCHEME_JSON" > private/scheme.json; fi
+          python3 make_zip.py --site _site
+
+      - name: Check that no statistics URL or company rates are published
+        run: |
+          grep -q '^const STATS_URL = "";' _site/src/js/stats.js || { echo "STATS_URL must be empty"; exit 1; }
+          [ "$(grep -c . data/company_rates.csv)" -le 1 ] || { echo "data/company_rates.csv must hold only its header"; exit 1; }
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

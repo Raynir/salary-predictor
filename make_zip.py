@@ -8,12 +8,16 @@ archive, so the URL never has to be committed. Python 3.8+ standard library only
     python make_zip.py --no-stats               # ignore stats_url.txt
     python make_zip.py --with-sources           # also data/, update_data.py and README.md
     python make_zip.py -o my.zip
+    python make_zip.py --site _site             # public web copy in a folder, see below
 
 stats_url.txt (one line, the Apps Script /exec URL) and dist/ are in .gitignore.
 
 Values kept out of the repository go in private/ (also gitignored) and are filled into the archive only:
     private/company_rates.csv   real company rates: embedded in the archive's src/data.js (and data/ with sources)
     private/scheme.json         pay-scheme defaults for SAL_DEFAULTS, e.g. {"fixed": "0.5", "lower": "50", ...}
+
+--site DIR writes the public web copy (GitHub Pages) into DIR instead: predictor.html, the same page as index.html,
+and src/, with SAL_DEFAULTS from private/scheme.json if it exists. It never adds the statistics URL or company rates.
 """
 
 import argparse
@@ -75,14 +79,35 @@ def files(with_sources):
         yield ROOT / "README.md"
 
 
+def write_site(out):
+    """The public web copy: no statistics URL and no company rates, only the pay-scheme defaults."""
+    if out.exists() and any(out.iterdir()):
+        sys.exit(f"{out} must be empty or not exist.")
+    scheme = PRIVATE_SCHEME.exists()
+    for p in files(False):
+        rel = p.relative_to(ROOT).as_posix()
+        data = p.read_bytes()
+        if rel == SALARY_JS and scheme:
+            data = with_scheme(data.decode("utf-8")).encode("utf-8")
+        dest = out / rel
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(data)
+    (out / "index.html").write_bytes((ROOT / "predictor.html").read_bytes())
+    print(f"Wrote {out}")
+    print(f"Pay-scheme defaults: {'from private/scheme.json' if scheme else 'as in the repository'}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--stats-url", help="Apps Script /exec URL (default: contents of stats_url.txt)")
     ap.add_argument("--no-stats", action="store_true", help="leave statistics off even if stats_url.txt exists")
     ap.add_argument("--with-sources", action="store_true", help="also include data/, update_data.py and README.md")
     ap.add_argument("-o", "--output", help="archive path (default: dist/SalaryPredictor-YYYY-MM-DD.zip)")
+    ap.add_argument("--site", metavar="DIR", help="write the public web copy into DIR instead of an archive")
     args = ap.parse_args()
 
+    if args.site:
+        return write_site(Path(args.site))
     url = stats_url(args)
     if (ROOT / STATS_JS).read_text(encoding="utf-8").count(STATS_LINE) != 1:
         sys.exit(f"{STATS_JS} must contain exactly one line {STATS_LINE!r}. Put the URL in stats_url.txt instead.")

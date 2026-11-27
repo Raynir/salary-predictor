@@ -24,10 +24,10 @@ src/js/nav.js         sidebar section switching (URL hash + sp.section)
 src/js/main.js        event wiring and startup
 data/*.csv            source data: CBR daily rates, company monthly rates (header only in the repo), production calendar (holidays.csv)
 private/              gitignored: real company_rates.csv and scheme.json (pay-scheme defaults), used by make_zip.py
-.github/workflows/pages.yml  on a published release: rebuild src/data.js at the tag, check nothing private is in it, deploy predictor.html (+ index.html copy) and src/ to GitHub Pages
+.github/workflows/pages.yml  on a published release: rebuild src/data.js at the tag, build the site with `make_zip.py --site` (SAL_DEFAULTS from the SCHEME_JSON secret), check no stats URL or company rates are in it, deploy to GitHub Pages
 tools/stats-apps-script.gs  Google Apps Script backend for the statistics (pasted into the sheet, not loaded)
 update_data.py        fetches new CBR rates, writes src/data.js, prints a prediction
-make_zip.py           builds dist/*.zip to hand out, filling STATS_URL from stats_url.txt, company rates and SAL_DEFAULTS from private/ (all gitignored); --with-sources adds data/, update_data.py, README
+make_zip.py           builds dist/*.zip to hand out, filling STATS_URL from stats_url.txt, company rates and SAL_DEFAULTS from private/ (all gitignored); --with-sources adds data/, update_data.py, README; --site DIR writes the public web copy (SAL_DEFAULTS only)
 ```
 
 ## Rules

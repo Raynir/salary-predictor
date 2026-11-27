@@ -6,7 +6,7 @@ Predicts the company's monthly USD→RUB rate from the Central Bank (CBR) daily 
 
 ## Use it
 
-Open the web version at https://raynir.github.io/salary-predictor/, or double-click `predictor.html` from the archive. The file opens in any browser and needs no installation, but the `src` folder must stay next to it. The web version has no company rates and shows example pay-scheme values; load company rates in Settings & data. Settings are saved per browser and per address, so the web version and a local file don't share them. The sidebar has five sections:
+Open the web version at https://raynir.github.io/salary-predictor/, or double-click `predictor.html` from the archive. The file opens in any browser and needs no installation, but the `src` folder must stay next to it. The web version has no company rates; load them in Settings & data. Settings are saved per browser and per address, so the web version and a local file don't share them. The sidebar has five sections:
 
 - Rate forecast: the predicted company rate for the current month with a likely range, a field for the CBR rate you expect for the rest of the month (defaults to the latest rate), and the history chart and table comparing the model with past company rates. Finished months without a company rate yet show their CBR average and the model's estimate. Under the table you can enter a month's company rate once it is known; it is saved in the browser, and "Download company rates CSV" gives the full list to put in `data/company_rates.csv`
 - Salary: the salary calculator described below
@@ -121,9 +121,9 @@ Keeping the URL out of the repository only keeps it from being public. Everyone 
 
 ## Web version
 
-`.github/workflows/pages.yml` publishes the app to GitHub Pages whenever a GitHub release is published; commits between releases don't go live. It checks out the release tag, runs `update_data.py` to refresh the CBR rates (keeping the committed data if cbr.ru is unreachable), refuses to deploy if `STATS_URL` is set or `data/company_rates.csv` has rows, and serves `predictor.html` (also as `index.html`) with `src/`. To redeploy an older release, run the workflow by hand from the Actions tab and give it the tag. One-time setup: Settings → Pages → Source: GitHub Actions.
+`.github/workflows/pages.yml` publishes the app to GitHub Pages whenever a GitHub release is published; commits between releases don't go live. It checks out the release tag, runs `update_data.py` to refresh the CBR rates (keeping the committed data if cbr.ru is unreachable), refuses to deploy if `STATS_URL` is set or `data/company_rates.csv` has rows, and serves `predictor.html` (also as `index.html`) with `src/`, built by `python make_zip.py --site _site`. To redeploy an older release, run the workflow by hand from the Actions tab and give it the tag. One-time setup: Settings → Pages → Source: GitHub Actions.
 
-The web version is public, so it never gets the values from `private/` or `stats_url.txt`: no company rates, example pay-scheme defaults, statistics off.
+The web version is public. It never gets company rates or the statistics URL. The pay-scheme defaults come from the repository secret `SCHEME_JSON` (the contents of `private/scheme.json`), which the workflow writes into the site's copy of `salary.js`, so they stay out of git but anyone opening the site can read them. Without the secret the site shows the example values. To set it: `gh secret set SCHEME_JSON < private/scheme.json`.
 
 ## Development
 
@@ -137,7 +137,7 @@ Markup is in `predictor.html`, styles in `src/styles.css`, code in `src/js/`, on
 
 ## Как пользоваться
 
-Откройте веб-версию по адресу https://raynir.github.io/salary-predictor/ или `predictor.html` из архива двойным щелчком. Файл работает в любом браузере без установки, но папка `src` должна лежать рядом с ним. В веб-версии нет курсов компании, а параметры схемы оплаты заполнены примерами; курсы компании можно загрузить в разделе «Настройки и данные». Настройки сохраняются отдельно для каждого браузера и адреса, поэтому у веб-версии и локального файла они разные. В боковом меню пять разделов:
+Откройте веб-версию по адресу https://raynir.github.io/salary-predictor/ или `predictor.html` из архива двойным щелчком. Файл работает в любом браузере без установки, но папка `src` должна лежать рядом с ним. В веб-версии нет курсов компании; их можно загрузить в разделе «Настройки и данные». Настройки сохраняются отдельно для каждого браузера и адреса, поэтому у веб-версии и локального файла они разные. В боковом меню пять разделов:
 
 - Прогноз курса: прогноз курса компании на текущий месяц с вероятным диапазоном, поле для ожидаемого курса ЦБ до конца месяца (по умолчанию последний курс), график и таблица сравнения модели с прошлыми курсами компании. Завершённые месяцы, для которых курса компании ещё нет, показываются со средним курсом ЦБ и оценкой модели. Под таблицей можно ввести курс компании за месяц, когда он станет известен; он сохраняется в браузере, а «Скачать CSV с курсами компании» даёт полный список для `data/company_rates.csv`
 - Зарплата: калькулятор зарплаты, описанный ниже
@@ -252,9 +252,9 @@ URL не попадает в репозиторий, но это защищае�
 
 ## Веб-версия
 
-`.github/workflows/pages.yml` публикует приложение на GitHub Pages при каждом опубликованном релизе на GitHub; коммиты между релизами на сайт не попадают. Workflow берёт код по тегу релиза, запускает `update_data.py`, чтобы обновить курсы ЦБ (если cbr.ru недоступен, остаются данные из репозитория), отказывается публиковать, если задан `STATS_URL` или в `data/company_rates.csv` есть строки, и выкладывает `predictor.html` (также как `index.html`) вместе с `src/`. Чтобы заново выложить старый релиз, запустите workflow вручную на вкладке Actions и укажите тег. Однократная настройка: Settings → Pages → Source: GitHub Actions.
+`.github/workflows/pages.yml` публикует приложение на GitHub Pages при каждом опубликованном релизе на GitHub; коммиты между релизами на сайт не попадают. Workflow берёт код по тегу релиза, запускает `update_data.py`, чтобы обновить курсы ЦБ (если cbr.ru недоступен, остаются данные из репозитория), отказывается публиковать, если задан `STATS_URL` или в `data/company_rates.csv` есть строки, и выкладывает `predictor.html` (также как `index.html`) вместе с `src/`, собранные командой `python make_zip.py --site _site`. Чтобы заново выложить старый релиз, запустите workflow вручную на вкладке Actions и укажите тег. Однократная настройка: Settings → Pages → Source: GitHub Actions.
 
-Веб-версия публичная, поэтому в неё никогда не попадают значения из `private/` и `stats_url.txt`: нет курсов компании, параметры схемы оплаты заполнены примерами, статистика выключена.
+Веб-версия публичная. Курсы компании и URL статистики в неё никогда не попадают. Параметры схемы оплаты по умолчанию берутся из секрета репозитория `SCHEME_JSON` (содержимое `private/scheme.json`): workflow подставляет их в копию `salary.js` на сайте, поэтому в git их нет, но любой посетитель сайта может их прочитать. Без секрета на сайте остаются примерные значения. Задать секрет: `gh secret set SCHEME_JSON < private/scheme.json`.
 
 ## Разработка
 
